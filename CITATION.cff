@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite its original repository and credit its author."
+type: software
+title: "Sanag Control — B21S for iOS"
+authors:
+  - family-names: Serioli
+    given-names: Luca
+    affiliation: "Independent developer"
+version: "0.4.4-beta"
+date-released: 2026-10-11
+repository-code: "https://github.com/LucaXTech/sanag-b21s-control-ios"
+url: "https://github.com/LucaXTech/sanag-b21s-control-ios"
+license: MIT
+abstract: >-
+  Unofficial open-source SwiftUI/CoreBluetooth iOS companion for Sanag B21S
+  headphones, supporting firmware EQ preset selection, reconnection, and
+  Shortcuts-based preset restoration.

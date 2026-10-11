@@ -90,6 +90,14 @@ Only **Sanag B21S** is hardware-verified so far. If you own another model, pleas
 
 This is an independently developed interoperability project, **not affiliated with, endorsed by, or supported by Sanag**. Sanag and B21S are names used solely to identify compatible hardware. No proprietary APK, firmware image, manufacturer artwork, or Apple signing credentials are distributed in this repository.
 
+## Citation and author credit
+
+**Original creator and maintainer:** [Luca Serioli](https://github.com/LucaXTech).
+
+When referencing this project in an article, tutorial, academic work, or derivative project, please use the GitHub **Cite this repository** feature (powered by [CITATION.cff](CITATION.cff)) and link to the [original repository](https://github.com/LucaXTech/sanag-b21s-control-ios).
+
+See [AUTHORS.md](AUTHORS.md) for contributor recognition and [NOTICE.md](NOTICE.md) for attribution and trademark context. Citation and prominent UI credit are appreciated, but are **not additional legal conditions** of the MIT license.
+
 ## License
 
 MIT — see [LICENSE](LICENSE). © 2026 Luca Serioli.
