@@ -1,0 +1,59 @@
+name: Device compatibility report
+description: Report read-only Bluetooth observations for a headset or another audio device
+title: "[Device] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping! Only report devices you own or are authorized to test. **Do not include Bluetooth MAC addresses, CoreBluetooth peripheral identifiers, serial numbers, credentials, personal logs, or unredacted screenshots.** Never send unknown commands or flash firmware to test compatibility.
+  - type: input
+    id: brand_model
+    attributes:
+      label: Brand and model
+      placeholder: e.g. Sanag B30S Pro
+    validations:
+      required: true
+  - type: input
+    id: firmware
+    attributes:
+      label: Firmware version (optional)
+      placeholder: If visible in the official app
+  - type: dropdown
+    id: evidence
+    attributes:
+      label: What evidence do you have?
+      options:
+        - Hardware observation (read-only BLE scan)
+        - Hardware test of a known-safe protocol operation
+        - Public documentation or certification
+        - Static APK analysis only
+        - Device catalog entry only
+    validations:
+      required: true
+  - type: textarea
+    id: ble
+    attributes:
+      label: BLE observations (redacted)
+      description: Advertising local name, service and characteristic UUIDs, and optional behavior; do not post device identifiers.
+      placeholder: |
+        Advertised name: ...
+        Services: ...
+        Characteristic UUIDs: ...
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What did you actually test?
+      placeholder: Read-only scan; official-app preset change; observed response; no writes sent by this project ...
+    validations:
+      required: true
+  - type: checkboxes
+    id: safety
+    attributes:
+      label: Privacy and testing
+      options:
+        - label: I tested only devices I own or am authorized to examine.
+          required: true
+        - label: I have removed device identifiers and personal information from the report.
+          required: true

@@ -1,0 +1,17 @@
+name: Feature request
+description: Propose an improvement to UI, diagnostics, or supported protocol
+labels: [enhancement]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Proposed change
+    validations:
+      required: true
+  - type: textarea
+    id: rationale
+    attributes:
+      label: User impact / evidence
+      description: Please distinguish known hardware behavior from speculation.
+    validations:
+      required: true

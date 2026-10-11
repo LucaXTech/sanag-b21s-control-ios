@@ -1,0 +1,44 @@
+name: Bug report
+description: Report unexpected Sanag B21S behavior
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: "Please redact Apple IDs, device UUIDs, Bluetooth logs, pairing files and screenshots before sharing."
+  - type: input
+    id: version
+    attributes:
+      label: App version
+      placeholder: 0.4.4
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: iOS version and headphone firmware (if known)
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to reproduce
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Expected vs actual result
+    validations:
+      required: true
+  - type: dropdown
+    id: scenario
+    attributes:
+      label: App state when problem occurred
+      options:
+        - Foreground
+        - Background
+        - iPhone locked
+        - App previously force-quit
+        - Unknown
+    validations:
+      required: true
