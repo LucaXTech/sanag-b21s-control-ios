@@ -15,8 +15,8 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         let rssi: Int
     }
 
-    @Published private(set) var bluetoothStatus = "Inizializzazione Bluetooth…"
-    @Published private(set) var connectionStatus = "Non connesso"
+    @Published private(set) var bluetoothStatus = "Initializing Bluetooth…"
+    @Published private(set) var connectionStatus = "Not connected"
     @Published private(set) var foundDevices: [FoundDevice] = []
     @Published private(set) var isScanning = false
     @Published private(set) var isConnected = false
@@ -39,7 +39,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
             } else if isScanning {
                 central?.stopScan()
                 isScanning = false
-                log("Ricerca automatica disattivata")
+                log("Automatic discovery disabled")
             }
         }
     }
@@ -73,22 +73,22 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
     /// Attende la conferma 0x39 del firmware, o restituisce false dopo 25 secondi.
     func applySavedPresetFromShortcut() async -> Bool {
         guard let preset = savedPreset, (0...5).contains(preset) else {
-            log("Automazione: nessun preset memorizzato")
+            log("Shortcuts: no preset saved")
             return false
         }
         guard shortcutPending == nil else {
-            log("Automazione: richiesta EQ già in corso")
+            log("Shortcuts: EQ request already in progress")
             return false
         }
         guard central.state != .unauthorized, central.state != .unsupported else {
-            log("Automazione: Bluetooth non autorizzato o non supportato")
+            log("Shortcuts: Bluetooth unavailable or unauthorized")
             return false
         }
         manualDisconnect = false
         if !autoConnect { autoConnect = true }
         return await withCheckedContinuation { continuation in
             shortcutPending = (preset, continuation)
-            log("Automazione: richiesta preset \(preset)" )
+            log("Shortcuts: requesting preset \(preset)" )
             if isReady {
                 sendPreset(preset, restored: true)
             } else if central.state == .poweredOn {
@@ -104,7 +104,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
     private func finishShortcut(_ success: Bool) {
         guard let pending = shortcutPending else { return }
         shortcutPending = nil
-        log(success ? "Automazione: preset confermato" : "Automazione: timeout o EQ non confermato")
+        log(success ? "Shortcuts: preset confirmed" : "Shortcuts: timeout or EQ not confirmed")
         pending.continuation.resume(returning: success)
     }
 
@@ -120,13 +120,13 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         central = CBCentralManager(delegate: self, queue: .main, options: [
             CBCentralManagerOptionRestoreIdentifierKey: Self.restorationIdentifier
         ])
-        log("Controller BLE avviato; auto-connessione \(autoConnect ? "attiva" : "disattivata")")
+        log("BLE controller started; auto-connect \(autoConnect ? "on" : "off")")
     }
 
     /// Ricerca manuale: nel foreground nessun filtro, per non perdere advertising col solo nome.
     func scan() {
         guard central.state == .poweredOn else {
-            log("Bluetooth non disponibile: \(central.state.rawValue)")
+            log("Bluetooth unavailable: \(central.state.rawValue)")
             return
         }
         guard !isConnected else { return }
@@ -137,8 +137,8 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
     func stopScan() {
         central.stopScan()
         isScanning = false
-        if !isConnected && connectingPeripheralID == nil { connectionStatus = "Ricerca interrotta" }
-        log("Scansione fermata")
+        if !isConnected && connectingPeripheralID == nil { connectionStatus = "Scan stopped" }
+        log("Scan stopped")
     }
 
     func connect(to device: FoundDevice) {
@@ -154,10 +154,10 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         isScanning = false
         if let peripheral = connectedPeripheral {
             central.cancelPeripheralConnection(peripheral)
-            log("Disconnessione manuale richiesta")
+            log("Manual disconnection requested")
         } else {
             connectingPeripheralID = nil
-            connectionStatus = "Connessione sospesa"
+            connectionStatus = "Connection suspended"
         }
     }
 
@@ -165,7 +165,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         guard let old = knownPeripheralID else { return }
         defaults.removeObject(forKey: Self.peripheralIDKey)
         knownPeripheralID = nil
-        log("B21S memorizzate dimenticate: \(old.uuidString)")
+        log("Forgot saved B21S: \(old.uuidString)")
         if let peripheral = connectedPeripheral {
             // Aspetta il callback didDisconnect prima di cercare un altro dispositivo.
             manualDisconnect = true
@@ -178,14 +178,14 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
     }
 
     func requestStatus() {
-        send([0xAA, 0x76, 0x01, 0x00, 0x21], reason: "Richiesta stato EQ")
+        send([0xAA, 0x76, 0x01, 0x00, 0x21], reason: "Request EQ status")
     }
 
     /// Comando documentato dall'APK Sanag (sendGetBatteryCMD); checksum AA+33+01=DE.
     /// Valore validato dall'osservazione di una notifica A5 33 01 4E 27 (78%).
     func requestBattery() {
         guard isReady else { return }
-        send([0xAA, 0x33, 0x01, 0x00, 0xDE], reason: "Richiesta batteria B21S")
+        send([0xAA, 0x33, 0x01, 0x00, 0xDE], reason: "Request B21S battery")
     }
 
     func selectPreset(_ preset: Int) {
@@ -222,7 +222,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         }
         if let id = knownPeripheralID,
            let peripheral = central.retrievePeripherals(withIdentifiers: [id]).first {
-            log("B21S note recuperate da CoreBluetooth")
+            log("Restored known B21S from CoreBluetooth")
             requestConnection(to: peripheral)
             return
         }
@@ -240,8 +240,8 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         central.scanForPeripherals(withServices: services,
                                    options: [CBCentralManagerScanOptionAllowDuplicatesKey: false])
         isScanning = true
-        connectionStatus = inBackground ? "Ricerca B21S in background…" : "Ricerca B21S in corso…"
-        log(inBackground ? "Ricerca BLE filtrata A0FA in background" : "Ricerca BLE avviata")
+        connectionStatus = inBackground ? "Searching for B21S in background…" : "Searching for B21S…"
+        log(inBackground ? "Background BLE search filtered to A0FA" : "BLE scan started")
     }
 
     private func requestConnection(to peripheral: CBPeripheral) {
@@ -257,10 +257,10 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         connectedPeripheral = peripheral
         connectingPeripheralID = peripheral.identifier
         peripheral.delegate = self
-        connectionStatus = "Connessione automatica alle B21S…"
+        connectionStatus = "Connecting to B21S…"
         // La richiesta resta pendente anche se il dispositivo è spento/non raggiungibile.
         central.connect(peripheral, options: nil)
-        log("Connessione richiesta: \(peripheral.name ?? peripheral.identifier.uuidString)")
+        log("Connection requested: \(peripheral.name ?? peripheral.identifier.uuidString)")
     }
 
     private func prepareConnectedPeripheral(_ peripheral: CBPeripheral) {
@@ -271,19 +271,19 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         isReady = false
         writeCharacteristic = nil
         notifyCharacteristic = nil
-        connectionStatus = "Connesso · ricerca servizio EQ…"
+        connectionStatus = "Connected · finding EQ service…"
         peripheral.discoverServices([serviceUUID])
     }
 
     private func sendPreset(_ preset: Int, restored: Bool) {
         let checksum = UInt8(truncatingIfNeeded: 0xAA + 0x39 + 0x01 + preset)
         send([0xAA, 0x39, 0x01, UInt8(preset), checksum],
-             reason: restored ? "Ripristino preset \(preset)" : "Impostazione preset \(preset)")
+             reason: restored ? "Restoring preset \(preset)" : "Setting preset \(preset)")
     }
 
     private func send(_ packet: [UInt8], reason: String) {
         guard let peripheral = connectedPeripheral, let characteristic = writeCharacteristic else {
-            log("Comando non inviato: caratteristica FAA1 assente")
+            log("Command not sent: FAA1 characteristic missing")
             return
         }
         let type: CBCharacteristicWriteType
@@ -292,7 +292,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         } else if characteristic.properties.contains(.write) {
             type = .withResponse
         } else {
-            log("FAA1 non supporta la scrittura")
+            log("FAA1 does not support writing")
             return
         }
         peripheral.writeValue(Data(packet), for: characteristic, type: type)
@@ -304,16 +304,16 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         log("RX ← \(Self.hex(bytes))")
         guard bytes.count == 5, bytes[0] == 0xA5, bytes[2] == 0x01 else { return }
         let checksum = UInt8(truncatingIfNeeded: bytes.prefix(4).reduce(0) { $0 + Int($1) })
-        guard checksum == bytes[4] else { log("Checksum risposta non valido"); return }
+        guard checksum == bytes[4] else { log("Invalid response checksum"); return }
         if bytes[1] == 0x33 {
             // La famiglia 0x33 è interrogata dall'app Sanag come batteria.
             // Accettiamo solo una percentuale 0...100 per evitare valori ingannevoli.
             let level = Int(bytes[3])
             if (0...100).contains(level) {
-                if batteryLevel != level { log("Batteria B21S: \(level)%") }
+                if batteryLevel != level { log("B21S battery: \(level)%") }
                 batteryLevel = level
             } else {
-                log("Risposta batteria inattesa: \(level)")
+                log("Unexpected battery response: \(level)")
             }
             return
         }
@@ -322,7 +322,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         if bytes[1] == 0x39, shortcutPending?.preset == Int(bytes[3]) {
             finishShortcut(true)
         }
-        log(bytes[1] == 0x39 ? "EQ confermato: \(bytes[3])" : "Stato EQ: \(bytes[3])")
+        log(bytes[1] == 0x39 ? "EQ confirmed: \(bytes[3])" : "EQ status: \(bytes[3])")
     }
 
     /// Sends only allowlisted protocol metadata; never raw BLE packets or IDs.
@@ -343,13 +343,13 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         guard !isReady, let peripheral = connectedPeripheral else { return }
         isReady = true
         isConnected = true
-        connectionStatus = "Connesso · EQ pronto"
+        connectionStatus = "Connected · EQ ready"
         if knownPeripheralID != peripheral.identifier {
             knownPeripheralID = peripheral.identifier
             defaults.set(peripheral.identifier.uuidString, forKey: Self.peripheralIDKey)
-            log("Identificativo B21S salvato per riconnessione automatica")
+            log("Saved B21S identifier for reconnect")
         }
-        log("Servizio FAA0 e caratteristiche FAA1/FAA2 disponibili")
+        log("FAA0 and FAA1/FAA2 characteristics available")
         requestStatus()
         requestBattery()
         reportTechnicalInfoIfNeeded()
@@ -370,7 +370,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         notifyCharacteristic = nil
         connectedPeripheral = nil
         connectingPeripheralID = nil
-        connectionStatus = "Non connesso"
+        connectionStatus = "Not connected"
     }
 
     /// Cancella solo la cronologia locale, senza cambiare EQ o stato Bluetooth.
@@ -394,7 +394,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
 extension B21SBluetoothManager: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager, willRestoreState dict: [String: Any]) {
         restoredBySystem = true
-        log("Ripristino CoreBluetooth avviato dal sistema")
+        log("CoreBluetooth state restoration initiated")
         guard let restored = dict[CBCentralManagerRestoredStatePeripheralsKey] as? [CBPeripheral] else { return }
         for peripheral in restored {
             peripheral.delegate = self
@@ -412,22 +412,22 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
         switch central.state {
         case .poweredOn:
-            bluetoothStatus = "Bluetooth attivo"
+            bluetoothStatus = "Bluetooth enabled"
             if autoConnect && !manualDisconnect { resumeConnection() }
         case .poweredOff:
-            bluetoothStatus = "Bluetooth disattivato"
+            bluetoothStatus = "Bluetooth disabled"
             resetConnection()
             isScanning = false
         case .unauthorized:
-            bluetoothStatus = "Permesso Bluetooth negato"
+            bluetoothStatus = "Bluetooth permission denied"
             resetConnection()
         case .unsupported:
-            bluetoothStatus = "Bluetooth LE non supportato"
+            bluetoothStatus = "Bluetooth LE unsupported"
             resetConnection()
         default:
-            bluetoothStatus = "Bluetooth non disponibile"
+            bluetoothStatus = "Bluetooth unavailable"
         }
-        log(bluetoothStatus + (restoredBySystem ? " (state restoration attiva)" : ""))
+        log(bluetoothStatus + (restoredBySystem ? " (state restoration enabled)" : ""))
     }
 
     func centralManager(_ central: CBCentralManager,
@@ -435,7 +435,7 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
                         advertisementData: [String: Any],
                         rssi RSSI: NSNumber) {
         let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String)
-            ?? peripheral.name ?? "Dispositivo senza nome"
+            ?? peripheral.name ?? "Unnamed device"
         // Do not target unrelated peripherals based only on a shared BLE UUID.
         // Other headphones require a separately verified protocol adapter.
         let likelyB21S = name.localizedCaseInsensitiveContains("B21S")
@@ -445,7 +445,7 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
             foundDevices[idx] = FoundDevice(id: peripheral.identifier, name: name, rssi: RSSI.intValue)
         } else {
             foundDevices.append(FoundDevice(id: peripheral.identifier, name: name, rssi: RSSI.intValue))
-            log("Trovato: \(name) (RSSI \(RSSI) dBm)")
+            log("Found: \(name) (RSSI \(RSSI) dBm)")
         }
         // Alla prima connessione v0.2 può non avere un UUID salvato (migrazione da v0.1).
         if autoConnect && !manualDisconnect && connectedPeripheral == nil &&
@@ -455,14 +455,14 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
-        log("BLE connesso: \(peripheral.name ?? "B21S")")
+        log("BLE connected: \(peripheral.name ?? "B21S")")
         prepareConnectedPeripheral(peripheral)
     }
 
     func centralManager(_ central: CBCentralManager,
                         didFailToConnect peripheral: CBPeripheral,
                         error: Error?) {
-        log("Connessione fallita: \(error?.localizedDescription ?? "causa sconosciuta")")
+        log("Connection failed: \(error?.localizedDescription ?? "unknown cause")")
         resetConnection()
         if autoConnect && !manualDisconnect && central.state == .poweredOn {
             beginScanning()
@@ -472,13 +472,13 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
     func centralManager(_ central: CBCentralManager,
                         didDisconnectPeripheral peripheral: CBPeripheral,
                         error: Error?) {
-        log("Disconnesso: \(error?.localizedDescription ?? "nessun errore")")
+        log("Disconnected: \(error?.localizedDescription ?? "no error")")
         resetConnection()
         if autoConnect && !manualDisconnect && central.state == .poweredOn {
             // Manteniamo pendente la richiesta verso lo stesso UUID per il prossimo power-on.
             requestConnection(to: peripheral)
         } else if manualDisconnect {
-            connectionStatus = "Disconnesso manualmente"
+            connectionStatus = "Manually disconnected"
             if knownPeripheralID == nil, autoConnect, central.state == .poweredOn {
                 manualDisconnect = false
                 beginScanning()
@@ -489,10 +489,10 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
 
 extension B21SBluetoothManager: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
-        if let error { log("Errore servizi: \(error.localizedDescription)"); return }
+        if let error { log("Service discovery error: \(error.localizedDescription)"); return }
         guard let service = peripheral.services?.first(where: { $0.uuid == serviceUUID }) else {
-            log("Servizio FAA0 non trovato")
-            connectionStatus = "Servizio EQ non trovato"
+            log("FAA0 service not found")
+            connectionStatus = "EQ service not found"
             return
         }
         peripheral.discoverCharacteristics([writeUUID, notifyUUID], for: service)
@@ -501,19 +501,19 @@ extension B21SBluetoothManager: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral,
                     didDiscoverCharacteristicsFor service: CBService,
                     error: Error?) {
-        if let error { log("Errore caratteristiche: \(error.localizedDescription)"); return }
+        if let error { log("Characteristic discovery error: \(error.localizedDescription)"); return }
         writeCharacteristic = service.characteristics?.first(where: { $0.uuid == writeUUID })
         notifyCharacteristic = service.characteristics?.first(where: { $0.uuid == notifyUUID })
         guard writeCharacteristic != nil else {
-            log("Caratteristica FAA1 non trovata")
-            connectionStatus = "Controllo EQ non disponibile"
+            log("FAA1 characteristic not found")
+            connectionStatus = "EQ controls unavailable"
             return
         }
         if let notification = notifyCharacteristic,
            notification.properties.contains(.notify) {
             peripheral.setNotifyValue(true, for: notification)
         } else {
-            log("FAA2 non supporta notify; controllo senza conferme")
+            log("FAA2 does not support notifications; controls lack confirmation")
             becameReady()
         }
     }
@@ -521,21 +521,21 @@ extension B21SBluetoothManager: CBPeripheralDelegate {
     func peripheral(_ peripheral: CBPeripheral,
                     didUpdateNotificationStateFor characteristic: CBCharacteristic,
                     error: Error?) {
-        if let error { log("Notifiche FAA2 non abilitate: \(error.localizedDescription)") }
-        else { log("Notifiche FAA2: \(characteristic.isNotifying ? "attive" : "non attive")") }
+        if let error { log("FAA2 notifications unavailable: \(error.localizedDescription)") }
+        else { log("FAA2 notifications: \(characteristic.isNotifying ? "enabled" : "disabled")") }
         becameReady()
     }
 
     func peripheral(_ peripheral: CBPeripheral,
                     didUpdateValueFor characteristic: CBCharacteristic,
                     error: Error?) {
-        if let error { log("Errore RX: \(error.localizedDescription)"); return }
+        if let error { log("Read error: \(error.localizedDescription)"); return }
         if characteristic.uuid == notifyUUID, let data = characteristic.value { handleResponse(data) }
     }
 
     func peripheral(_ peripheral: CBPeripheral,
                     didWriteValueFor characteristic: CBCharacteristic,
                     error: Error?) {
-        if let error { log("Errore invio EQ: \(error.localizedDescription)") }
+        if let error { log("EQ write error: \(error.localizedDescription)") }
     }
 }
