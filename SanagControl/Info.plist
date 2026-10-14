@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
-	<string>it</string>
+	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -15,13 +15,15 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>0.4.4</string>
+	<string>0.5.0</string>
 	<key>CFBundleVersion</key>
-	<string>10</string>
-	<key>LSRequiresIPhoneOS</key>
+	<string>14</string>
+	<key>DeviceReportURL</key>
+    <string></string>
+    <key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>Sanag Control usa Bluetooth per riconnettersi automaticamente alle cuffie B21S e ripristinare il preset EQ anche in background quando iOS lo consente.</string>
+	<string>Sanag Control uses Bluetooth to control verified headphones and, only upon request, to inspect the GATT services of unsupported BLE models. Unknown devices never receive proprietary commands.</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>bluetooth-central</string>

@@ -26,8 +26,8 @@ struct SanagControlApp: App {
 /// Disponibile nell'app Comandi Rapidi: esegue una breve sessione BLE
 /// senza dover mostrare l'interfaccia di Sanag Control.
 struct RipristinaEQB21SIntent: AppIntent {
-    static var title: LocalizedStringResource = "Ripristina EQ B21S"
-    static var description = IntentDescription("Riconnette le B21S e applica il preset EQ salvato.")
+    static var title: LocalizedStringResource = "Restore B21S EQ"
+    static var description = IntentDescription("Reconnects B21S and applies the saved EQ preset.")
     static var openAppWhenRun: Bool { false }
 
     // API moderna: il sistema è autorizzato a eseguire l'azione senza UI.
@@ -46,8 +46,8 @@ struct SanagControlShortcuts: AppShortcutsProvider {
     static var appShortcuts: [AppShortcut] {
         AppShortcut(
             intent: RipristinaEQB21SIntent(),
-            phrases: ["Ripristina EQ con \(.applicationName)", "Applica il preset con \(.applicationName)"],
-            shortTitle: "Ripristina EQ B21S",
+            phrases: ["Restore EQ with \(.applicationName)", "Apply the saved EQ preset with \(.applicationName)"],
+            shortTitle: "Restore B21S EQ",
             systemImageName: "headphones"
         )
     }
