@@ -258,7 +258,7 @@ struct UnsupportedHeadsetView: View {
     var body: some View {
         Form {
             Section {
-                TextField("Brand or model (e.g. AUKEY EP-T21)", text: $model)
+                TextField("Enter the headphone brand and model", text: $model)
                     .textInputAutocapitalization(.words)
                     .autocorrectionDisabled()
                 HStack {
