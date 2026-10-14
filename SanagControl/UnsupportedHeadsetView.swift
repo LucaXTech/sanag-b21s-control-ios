@@ -38,6 +38,7 @@ final class UnsupportedHeadsetInspector: NSObject, ObservableObject {
     private var selectedPeripheral: CBPeripheral?
     private var scanRequested = false
     private var modelQuery = ""
+    private var hasSearched = false
     private var remainingServices = Set<String>()
 
     override init() {
@@ -53,6 +54,7 @@ final class UnsupportedHeadsetInspector: NSObject, ObservableObject {
         }
         disconnect()
         modelQuery = text
+        hasSearched = true
         matches = []
         devices = [:]
         services = []
@@ -111,6 +113,24 @@ final class UnsupportedHeadsetInspector: NSObject, ObservableObject {
     func close() {
         disconnect()
         devices.removeAll()
+    }
+
+    /// A requested model can be sent even if it has no observable BLE interface.
+    /// Never attach GATT data from a different typed model.
+    func contributionDetails(for model: String) -> (status: String, services: [String], characteristics: [String]) {
+        let matchesSearch = model.trimmingCharacters(in: .whitespacesAndNewlines)
+            .caseInsensitiveCompare(modelQuery) == .orderedSame
+        if matchesSearch && inspected {
+            return (
+                "observed",
+                Array(Set(services.map { $0.uuid })).sorted(),
+                Array(Set(services.flatMap { $0.characteristics.map { $0.uuid } })).sorted()
+            )
+        }
+        if matchesSearch && hasSearched && !scanning && matches.isEmpty {
+            return ("not_found", [], [])
+        }
+        return ("not_checked", [], [])
     }
 
     var reportText: String {
@@ -253,7 +273,9 @@ extension UnsupportedHeadsetInspector: CBPeripheralDelegate {
 /// results are shown only when their advertised names match what the user typed.
 struct UnsupportedHeadsetView: View {
     @StateObject private var inspector = UnsupportedHeadsetInspector()
+    @StateObject private var telemetry = DeviceTelemetry.shared
     @State private var model = ""
+    @State private var showConsent = false
 
     var body: some View {
         Form {
@@ -323,22 +345,54 @@ struct UnsupportedHeadsetView: View {
             }
 
             Section("Request support") {
-                Text("Your \(model.isEmpty ? "headphones" : model) aren't supported yet. Send the model and available BLE metadata to the developer to help add support in a future release.")
+                Text("Your \(model.isEmpty ? "headphones" : model) aren't supported yet. You can send an anonymous compatibility request directly to the developer. No GitHub account needed.")
                     .font(.subheadline)
-                if let url = inspector.requestURL {
-                    Link("Request support on GitHub", destination: url)
+                Button {
+                    showConsent = true
+                } label: {
+                    HStack {
+                        Label("Send support request", systemImage: "paperplane")
+                        Spacer()
+                        if telemetry.isSubmittingSupportRequest { ProgressView() }
+                    }
                 }
-                Button("Copy technical report") {
-                    UIPasteboard.general.string = inspector.reportText
+                .disabled(telemetry.isSubmittingSupportRequest ||
+                          model.trimmingCharacters(in: .whitespacesAndNewlines).count < 3 ||
+                          !telemetry.isConfigured)
+                if let result = telemetry.supportResult {
+                    Text(result)
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
-                .disabled(model.trimmingCharacters(in: .whitespacesAndNewlines).count < 3)
-                Text("A GitHub issue draft opens with the model and available GATT details already filled in. Review it before submitting; nothing is uploaded automatically.")
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                if !telemetry.isConfigured {
+                    Text("Direct reporting is unavailable in this build.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("We send only the model you enter, available BLE service/characteristic UUIDs and app version. No serial numbers, device identifiers, audio or logs. Your IP is processed by the hosting provider during delivery; reports are aggregated.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
             }
         }
         .navigationTitle("Unsupported headphones")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("Send anonymous support request?", isPresented: $showConsent) {
+            Button("Cancel", role: .cancel) { }
+            Button("Send request") {
+                let details = inspector.contributionDetails(for: model)
+                telemetry.submitSupportRequest(
+                    model: model, bleStatus: details.status,
+                    services: details.services,
+                    characteristics: details.characteristics
+                )
+            }
+        } message: {
+            Text("Share the headphone model you typed, the app version and any GATT UUIDs inspected, using the same compatibility reporting service. No GitHub account or automatic sharing permission is required. Review the model before submitting.")
+        }
+        .onChange(of: model) { _, _ in
+            telemetry.clearSupportResult()
+        }
         .onDisappear { inspector.close() }
     }
 }
