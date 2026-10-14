@@ -10,10 +10,10 @@
   A00000000000000000000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000012 /* ContentView.swift */; };
   A00000000000000000000003 /* B21SBluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000013 /* B21SBluetoothManager.swift */; };
   A00000000000000000000004 /* DeviceTelemetry.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000016 /* DeviceTelemetry.swift */; };
-  A00000000000000000000005 /* ExperimentalHeadsetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000018 /* ExperimentalHeadsetProtocols.swift */; };
-  A00000000000000000000006 /* CommunityHeadsetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000019 /* CommunityHeadsetManager.swift */; };
-  A00000000000000000000007 /* CommunityHeadsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000020 /* CommunityHeadsetView.swift */; };
-  A00000000000000000000008 /* UnsupportedHeadsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000021 /* UnsupportedHeadsetView.swift */; };
+  A00000000000000000000005 /* ExperimentalHeadsetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000070 /* ExperimentalHeadsetProtocols.swift */; };
+  A00000000000000000000006 /* CommunityHeadsetManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000071 /* CommunityHeadsetManager.swift */; };
+  A00000000000000000000007 /* CommunityHeadsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000072 /* CommunityHeadsetView.swift */; };
+  A00000000000000000000008 /* UnsupportedHeadsetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A00000000000000000000073 /* UnsupportedHeadsetView.swift */; };
 /* End PBXBuildFile section */
 /* Begin PBXFileReference section */
   AC0400000000000000000002 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -23,14 +23,14 @@
   A00000000000000000000016 /* DeviceTelemetry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceTelemetry.swift; sourceTree = "<group>"; };
   A00000000000000000000014 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
   A00000000000000000000015 /* SanagControl.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SanagControl.app; sourceTree = BUILT_PRODUCTS_DIR; };
-  A00000000000000000000018 /* ExperimentalHeadsetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentalHeadsetProtocols.swift; sourceTree = "<group>"; };
-  A00000000000000000000019 /* CommunityHeadsetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityHeadsetManager.swift; sourceTree = "<group>"; };
-  A00000000000000000000020 /* CommunityHeadsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityHeadsetView.swift; sourceTree = "<group>"; };
-  A00000000000000000000021 /* UnsupportedHeadsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedHeadsetView.swift; sourceTree = "<group>"; };
+  A00000000000000000000070 /* ExperimentalHeadsetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExperimentalHeadsetProtocols.swift; sourceTree = "<group>"; };
+  A00000000000000000000071 /* CommunityHeadsetManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityHeadsetManager.swift; sourceTree = "<group>"; };
+  A00000000000000000000072 /* CommunityHeadsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommunityHeadsetView.swift; sourceTree = "<group>"; };
+  A00000000000000000000073 /* UnsupportedHeadsetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsupportedHeadsetView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 /* Begin PBXGroup section */
   A00000000000000000000020 = {isa = PBXGroup; children = (A00000000000000000000021 /* SanagControl */, A00000000000000000000022 /* Products */); sourceTree = "<group>"; };
-  A00000000000000000000021 /* SanagControl */ = {isa = PBXGroup; children = (A00000000000000000000011 /* SanagControlApp.swift */, A00000000000000000000012 /* ContentView.swift */, A00000000000000000000013 /* B21SBluetoothManager.swift */, A00000000000000000000016 /* DeviceTelemetry.swift */, A00000000000000000000018 /* ExperimentalHeadsetProtocols.swift */, A00000000000000000000019 /* CommunityHeadsetManager.swift */, A00000000000000000000020 /* CommunityHeadsetView.swift */, A00000000000000000000021 /* UnsupportedHeadsetView.swift */, A00000000000000000000014 /* Info.plist */, AC0400000000000000000002 /* Assets.xcassets */, ); path = SanagControl; sourceTree = "<group>"; };
+  A00000000000000000000021 /* SanagControl */ = {isa = PBXGroup; children = (A00000000000000000000011 /* SanagControlApp.swift */, A00000000000000000000012 /* ContentView.swift */, A00000000000000000000013 /* B21SBluetoothManager.swift */, A00000000000000000000016 /* DeviceTelemetry.swift */, A00000000000000000000070 /* ExperimentalHeadsetProtocols.swift */, A00000000000000000000071 /* CommunityHeadsetManager.swift */, A00000000000000000000072 /* CommunityHeadsetView.swift */, A00000000000000000000073 /* UnsupportedHeadsetView.swift */, A00000000000000000000014 /* Info.plist */, AC0400000000000000000002 /* Assets.xcassets */, ); path = SanagControl; sourceTree = "<group>"; };
   A00000000000000000000022 /* Products */ = {isa = PBXGroup; children = (A00000000000000000000015 /* SanagControl.app */); name = Products; sourceTree = "<group>"; };
 /* End PBXGroup section */
 /* Begin PBXNativeTarget section */
