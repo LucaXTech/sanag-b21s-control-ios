@@ -19,6 +19,8 @@ private enum B21SUI {
 
 struct ContentView: View {
     @EnvironmentObject private var ble: B21SBluetoothManager
+    @StateObject private var telemetry = DeviceTelemetry.shared
+    @State private var showTelemetryConsent = false
     private let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
 
     var body: some View {
@@ -46,6 +48,22 @@ struct ContentView: View {
                 }
             }
             .tint(.blue)
+            .onAppear {
+                if telemetry.isConfigured && !telemetry.hasDecided {
+                    showTelemetryConsent = true
+                }
+            }
+            .alert("Aiutaci a supportare altre cuffie",
+                   isPresented: $showTelemetryConsent) {
+                Button("Non condividere", role: .cancel) {
+                    telemetry.setConsent(false)
+                }
+                Button("Attiva condivisione") {
+                    telemetry.setConsent(true)
+                }
+            } message: {
+                Text("Vuoi condividere automaticamente dati tecnici senza identificatori personali delle cuffie compatibili? Invieremo soltanto modello, servizi e caratteristiche BLE e versione dell'app. Non invieremo identificativi persistenti, audio o log. Il servizio riceve l'indirizzo IP durante la connessione, ma non lo memorizza nel report. Puoi disattivare l'invio nelle Impostazioni.")
+            }
         }
     }
 
@@ -202,6 +220,7 @@ struct ContentView: View {
 
 private struct B21SSettingsView: View {
     @EnvironmentObject private var ble: B21SBluetoothManager
+    @StateObject private var telemetry = DeviceTelemetry.shared
 
     var body: some View {
         Form {
@@ -212,6 +231,19 @@ private struct B21SSettingsView: View {
                 Text("Automazione")
             } footer: {
                 Text("Il ripristino può avvenire anche tramite l'azione “Ripristina EQ B21S” di Comandi Rapidi. L'esecuzione in background dipende da iOS.")
+            }
+
+            Section {
+                Toggle("Condividi dati tecnici senza identificatori personali", isOn: $telemetry.isEnabled)
+                    .disabled(!telemetry.isConfigured)
+            } header: {
+                Text("Contribuisci alla compatibilità")
+            } footer: {
+                if telemetry.isConfigured {
+                    Text("Dopo il consenso, inviamo al massimo un report ogni 30 giorni per questa installazione: modello, servizi e caratteristiche BLE osservati e versione app. Nessun identificativo persistente, audio o log. La rete trasmette l'IP al servizio, che non lo salva nel database. Puoi disattivare l'invio in qualsiasi momento.")
+                } else {
+                    Text("La raccolta remota non è ancora configurata in questa versione. Nessun dato viene inviato.")
+                }
             }
 
             Section("Dispositivo") {
@@ -257,7 +289,7 @@ private struct B21SSettingsView: View {
 
             Section {
                 LabeledContent("Sviluppatore", value: "Luca Serioli")
-                LabeledContent("Versione", value: "0.4.4")
+                LabeledContent("Versione", value: "0.4.5")
                 Text("© 2026 Luca Serioli")
                     .font(.footnote)
                     .foregroundStyle(.secondary)

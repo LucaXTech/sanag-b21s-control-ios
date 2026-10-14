@@ -12,7 +12,9 @@
 Sanag Control uses **CoreBluetooth** to read and select the six firmware EQ presets, and can attempt to restore the last selected preset when the headphones reconnect. It also exposes a **Shortcuts App Intent** that can be run from an iOS Bluetooth connection automation without opening the full interface.
 
 **Author:** Luca Serioli ([@LucaXTech](https://github.com/LucaXTech))  
-**Current version:** 0.4.4 — pre-release / hardware validation in progress
+**Current released version:** 0.4.4 — pre-release / hardware validation in progress
+
+**In development:** 0.4.5, optional opt-in compatibility reporting (requires a configured HTTPS receiver before release).
 
 ## Features
 
