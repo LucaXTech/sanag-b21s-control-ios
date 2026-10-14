@@ -250,7 +250,7 @@ private struct B21SSettingsView: View {
             } header: {
                 Text("Automation")
             } footer: {
-                Text("Il ripristino può avvenire anche tramite l'azione “Ripristina EQ B21S” di Comandi Rapidi. L'esecuzione in background dipende da iOS.")
+                Text("The saved preset can also be restored from Shortcuts. Background execution depends on iOS.")
             }
 
             Section {
@@ -260,7 +260,7 @@ private struct B21SSettingsView: View {
                 Text("Help improve compatibility")
             } footer: {
                 if telemetry.isConfigured {
-                    Text("Dopo il consenso, inviamo al massimo un report ogni 30 giorni per questa installazione: modello, servizi e caratteristiche BLE osservati e versione app. Nessun identificativo persistente, audio o log. La rete trasmette l'IP al servizio, che non lo salva nel database. Puoi disattivare l'invio in qualsiasi momento.")
+                    Text("With permission, at most one report per model is sent every 30 days: model, GATT service and characteristic UUIDs, and app version. No device identifiers, audio or logs. You can opt out any time.")
                 } else {
                     Text("Remote reporting is not configured in this build. No data will be sent.")
                 }
@@ -382,7 +382,7 @@ private struct B21SProtocolView: View {
                 }
             }
             Section {
-                Text("Solo lettura e comandi EQ già verificati. Non è disponibile l'invio arbitrario di pacchetti al firmware.")
+                Text("Only verified B21S EQ commands can be sent. No arbitrary firmware writes are available.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
