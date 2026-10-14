@@ -158,19 +158,10 @@ final class CommunityHeadsetManager: NSObject, ObservableObject {
             }
             ready = true
             status = "Marshall protocol located. Controls are experimental on iOS."
-            reportIfConsented()
         }
     }
 
-    private func reportIfConsented() {
-        guard ready, let p = selected, let model = selectedModel else { return }
-        DeviceTelemetry.shared.submitIfNeeded(
-            model: model.rawValue,
-            services: p.services?.map { $0.uuid.uuidString } ?? [],
-            characteristics: p.services?.flatMap { $0.characteristics ?? [] }
-                .map { $0.uuid.uuidString } ?? []
-        )
-    }
+
 }
 
 extension CommunityHeadsetManager: CBCentralManagerDelegate {
@@ -280,7 +271,6 @@ extension CommunityHeadsetManager: CBPeripheralDelegate {
         if error == nil && characteristic.isNotifying {
             ready = true
             status = "TOZO T10 BLE protocol found. Experimental commands are available."
-            reportIfConsented()
         } else {
             status = "Could not enable TOZO notifications; no controls enabled."
         }

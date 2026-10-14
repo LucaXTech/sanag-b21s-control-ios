@@ -91,6 +91,16 @@ struct CommunityHeadsetView: View {
                 }
             }
 
+            Section("Unsupported headphones") {
+                Text("Have another brand? Inspect its BLE services safely and request support.")
+                    .font(.subheadline)
+                NavigationLink {
+                    UnsupportedHeadsetView()
+                } label: {
+                    Label("Find my model · Request support", systemImage: "plus.circle")
+                }
+            }
+
             Section {
                 Text("Does your model use a different protocol? Submit a model-specific compatibility report. Please do not publish serial numbers, Bluetooth identifiers or personal logs.")
                     .font(.footnote)

@@ -15,7 +15,7 @@ from urllib.parse import urlsplit
 
 PLIST_PATH = "Payload/SanagControl.app/Info.plist"
 EXPECTED_BUNDLE = "com.lucaxtech.sanagcontrol"
-EXPECTED_VERSION = "0.4.5"
+EXPECTED_VERSION = "0.5.0"
 
 
 def validate_endpoint(value: str) -> None:

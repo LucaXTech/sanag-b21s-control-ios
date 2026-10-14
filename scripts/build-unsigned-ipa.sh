@@ -5,7 +5,7 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 DERIVED="${HOME}/Downloads/SanagBuild-045"
-OUTPUT="${HOME}/Downloads/SanagControl-0.4.5.ipa"
+OUTPUT="${HOME}/Downloads/SanagControl-0.5.0.ipa"
 
 if ! command -v xcodebuild >/dev/null 2>&1; then
   echo "Xcode non disponibile. Usa il Mac con Xcode installato." >&2
@@ -32,8 +32,8 @@ IDENTIFIER="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.
 VERSION="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")"
 ENDPOINT="$(/usr/libexec/PlistBuddy -c 'Print :DeviceReportURL' "$APP/Info.plist")"
 
-if [ "$VERSION" != "0.4.5" ]; then
-  echo "Versione imprevista: $VERSION (attesa 0.4.5)." >&2
+if [ "$VERSION" != "0.5.0" ]; then
+  echo "Versione imprevista: $VERSION (attesa 0.5.0)." >&2
   exit 1
 fi
 
