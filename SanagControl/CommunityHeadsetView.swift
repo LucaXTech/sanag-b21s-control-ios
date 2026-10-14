@@ -102,12 +102,11 @@ struct CommunityHeadsetView: View {
             }
 
             Section {
-                Text("Does your model use a different protocol? Submit a model-specific compatibility report. Please do not publish serial numbers, Bluetooth identifiers or personal logs.")
+                Text("Don't see your headphones? Use Find my model · Request support to send the model and optional BLE metadata directly, without signing in to GitHub.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                Link("Contribute a headphone model",
-                     destination: URL(string: "https://github.com/LucaXTech/sanag-b21s-control-ios/issues/new/choose")!)
             }
+
         }
         .navigationTitle("Other headphones")
         .navigationBarTitleDisplayMode(.inline)
