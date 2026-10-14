@@ -2,11 +2,11 @@ import SwiftUI
 import UIKit
 
 private enum B21SUI {
-    static let titles = ["Stereo+", "Pop", "Rock", "Classica", "Voci", "Soft"]
+    static let titles = ["Stereo+", "Pop", "Rock", "Classical", "Vocals", "Soft"]
     static let original = ["SSQVP", "Pop ultrasonico", "Rock festoso", "Classica ricerca suoni", "Lirica iniziale", "Purezza morbida"]
 
     static func name(_ value: Int?) -> String {
-        guard let value, titles.indices.contains(value) else { return "Non rilevato" }
+        guard let value, titles.indices.contains(value) else { return "Not detected" }
         return titles[value]
     }
 
@@ -29,6 +29,26 @@ struct ContentView: View {
                 VStack(alignment: .leading, spacing: 18) {
                     deviceHero
                     presetsCard
+                    NavigationLink {
+                        CommunityHeadsetView()
+                    } label: {
+                        HStack(spacing: 12) {
+                            Image(systemName: "headphones")
+                                .font(.title3)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text("Other supported headphones")
+                                    .font(.headline)
+                                Text("TOZO T10 and Marshall Motif II ANC · Experimental")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            Image(systemName: "chevron.right")
+                        }
+                        .padding(18)
+                        .panel()
+                    }
+                    .buttonStyle(.plain)
                 }
                 .padding(.horizontal, 18)
                 .padding(.top, 12)
@@ -43,7 +63,7 @@ struct ContentView: View {
                         B21SSettingsView()
                     } label: {
                         Image(systemName: "gearshape")
-                            .accessibilityLabel("Impostazioni")
+                            .accessibilityLabel("Settings")
                     }
                 }
             }
@@ -53,16 +73,16 @@ struct ContentView: View {
                     showTelemetryConsent = true
                 }
             }
-            .alert("Aiutaci a supportare altre cuffie",
+            .alert("Help us support more headphones",
                    isPresented: $showTelemetryConsent) {
-                Button("Non condividere", role: .cancel) {
+                Button("Do not share", role: .cancel) {
                     telemetry.setConsent(false)
                 }
-                Button("Attiva condivisione") {
+                Button("Enable sharing") {
                     telemetry.setConsent(true)
                 }
             } message: {
-                Text("Vuoi condividere automaticamente dati tecnici senza identificatori personali delle cuffie compatibili? Invieremo soltanto modello, servizi e caratteristiche BLE e versione dell'app. Non invieremo identificativi persistenti, audio o log. Il servizio riceve l'indirizzo IP durante la connessione, ma non lo memorizza nel report. Puoi disattivare l'invio nelle Impostazioni.")
+                Text("With your permission, the app shares a small technical compatibility report after connecting to a supported headset: its model, BLE service and characteristic UUIDs, and app version. No device identifiers, audio or logs are included. The hosting service sees your IP address in transit but does not store it in the report. You can disable sharing in Settings.")
             }
         }
     }
@@ -84,7 +104,7 @@ struct ContentView: View {
                         Circle()
                             .fill(ble.isReady ? Color.green : Color.orange)
                             .frame(width: 7, height: 7)
-                        Text(ble.isReady ? "Connesso" : ble.connectionStatus)
+                        Text(ble.isReady ? "Connected" : ble.connectionStatus)
                             .font(.caption)
                             .foregroundStyle(.secondary)
                             .lineLimit(2)
@@ -101,11 +121,11 @@ struct ContentView: View {
                 .frame(height: 1)
 
             VStack(alignment: .leading, spacing: 6) {
-                Text("PRESET ATTIVO")
+                Text("ACTIVE EQ PRESET")
                     .font(.caption2.weight(.semibold))
                     .tracking(1.1)
                     .foregroundStyle(.secondary)
-                Text(ble.isReady ? B21SUI.name(ble.actualPreset) : "Non connesso")
+                Text(ble.isReady ? B21SUI.name(ble.actualPreset) : "Not connected")
                     .font(.system(size: 36, weight: .bold, design: .rounded))
                     .lineLimit(1)
                     .minimumScaleFactor(0.65)
@@ -116,7 +136,7 @@ struct ContentView: View {
                 Button {
                     if ble.isScanning { ble.stopScan() } else { ble.scan() }
                 } label: {
-                    Label(ble.isScanning ? "Interrompi ricerca" : "Cerca cuffie", systemImage: "magnifyingglass")
+                    Label(ble.isScanning ? "Stop scan" : "Find B21S", systemImage: "magnifyingglass")
                         .font(.subheadline.weight(.semibold))
                 }
                 .buttonStyle(.bordered)
@@ -142,7 +162,7 @@ struct ContentView: View {
             .background(Color.blue.opacity(0.12), in: Capsule())
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("Batteria B21S: \(ble.batteryLevel.map { "\($0) percento" } ?? "dato non disponibile"). Tocca per aggiornare")
+        .accessibilityLabel("B21S battery: \(ble.batteryLevel.map { "\($0) percent" } ?? "not available"). Tap to refresh.")
     }
 
     private var batteryIcon: String {
@@ -164,7 +184,7 @@ struct ContentView: View {
     private var presetsCard: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
-                Text("Equalizzazione")
+                Text("Equalizer")
                     .font(.headline)
                 Spacer()
                 Button {
@@ -174,7 +194,7 @@ struct ContentView: View {
                         .font(.subheadline.weight(.medium))
                 }
                 .disabled(!ble.isReady)
-                .accessibilityLabel("Aggiorna preset attivo")
+                .accessibilityLabel("Refresh active EQ preset")
             }
 
             LazyVGrid(columns: columns, spacing: 12) {
@@ -225,35 +245,43 @@ private struct B21SSettingsView: View {
     var body: some View {
         Form {
             Section {
-                Toggle("Connetti automaticamente", isOn: $ble.autoConnect)
-                Toggle("Ripristina preset", isOn: $ble.autoRestore)
+                Toggle("Auto-connect", isOn: $ble.autoConnect)
+                Toggle("Restore saved preset", isOn: $ble.autoRestore)
             } header: {
-                Text("Automazione")
+                Text("Automation")
             } footer: {
                 Text("Il ripristino può avvenire anche tramite l'azione “Ripristina EQ B21S” di Comandi Rapidi. L'esecuzione in background dipende da iOS.")
             }
 
             Section {
-                Toggle("Condividi dati tecnici senza identificatori personali", isOn: $telemetry.isEnabled)
+                Toggle("Share anonymous compatibility data", isOn: $telemetry.isEnabled)
                     .disabled(!telemetry.isConfigured)
             } header: {
-                Text("Contribuisci alla compatibilità")
+                Text("Help improve compatibility")
             } footer: {
                 if telemetry.isConfigured {
                     Text("Dopo il consenso, inviamo al massimo un report ogni 30 giorni per questa installazione: modello, servizi e caratteristiche BLE osservati e versione app. Nessun identificativo persistente, audio o log. La rete trasmette l'IP al servizio, che non lo salva nel database. Puoi disattivare l'invio in qualsiasi momento.")
                 } else {
-                    Text("La raccolta remota non è ancora configurata in questa versione. Nessun dato viene inviato.")
+                    Text("Remote reporting is not configured in this build. No data will be sent.")
                 }
             }
 
-            Section("Dispositivo") {
+            Section("Community-supported headphones") {
+                NavigationLink {
+                    CommunityHeadsetView()
+                } label: {
+                    Label("Other headphone models (experimental)", systemImage: "headphones")
+                }
+            }
+
+            Section("B21S device") {
                 if let uuid = ble.knownPeripheralID {
-                    LabeledContent("B21S memorizzate", value: String(uuid.uuidString.suffix(8)))
+                    LabeledContent("Saved B21S", value: String(uuid.uuidString.suffix(8)))
                 }
                 if ble.isConnected {
-                    Button("Disconnetti") { ble.disconnect() }
+                    Button("Disconnect") { ble.disconnect() }
                 } else {
-                    Button(ble.isScanning ? "Interrompi ricerca" : "Cerca cuffie") {
+                    Button(ble.isScanning ? "Stop scan" : "Find B21S") {
                         if ble.isScanning { ble.stopScan() } else { ble.scan() }
                     }
                     ForEach(ble.foundDevices) { device in
@@ -270,36 +298,36 @@ private struct B21SSettingsView: View {
                     }
                 }
                 if ble.knownPeripheralID != nil {
-                    Button("Dimentica dispositivo", role: .destructive) { ble.forgetDevice() }
+                    Button("Forget B21S", role: .destructive) { ble.forgetDevice() }
                 }
             }
 
-            Section("Avanzate") {
+            Section("Advanced") {
                 NavigationLink {
                     B21SProtocolView()
                 } label: {
-                    Label("Protocollo e comandi BLE", systemImage: "chevron.left.forwardslash.chevron.right")
+                    Label("BLE protocol and commands", systemImage: "chevron.left.forwardslash.chevron.right")
                 }
                 NavigationLink {
                     B21SDiagnosticsView()
                 } label: {
-                    Label("Log e diagnostica", systemImage: "waveform.path.ecg")
+                    Label("Logs and diagnostics", systemImage: "waveform.path.ecg")
                 }
             }
 
             Section {
-                LabeledContent("Sviluppatore", value: "Luca Serioli")
-                LabeledContent("Versione", value: "0.4.5")
+                LabeledContent("Developer", value: "Luca Serioli")
+                LabeledContent("Version", value: "0.5.0")
                 Text("© 2026 Luca Serioli")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             } header: {
-                Text("Informazioni")
+                Text("About")
             } footer: {
-                Text("App indipendente, non affiliata a Sanag. Non modifica il firmware delle cuffie.")
+                Text("Independent project, not affiliated with Sanag or any headphone manufacturer. No firmware updates.")
             }
         }
-        .navigationTitle("Impostazioni")
+        .navigationTitle("Settings")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -309,31 +337,31 @@ private struct B21SProtocolView: View {
 
     var body: some View {
         Form {
-            Section("Servizi GATT") {
+            Section("GATT services") {
                 LabeledContent("Advertising", value: "A0FA")
-                LabeledContent("Servizio EQ", value: "FAA0")
-                LabeledContent("Scrittura", value: "FAA1")
-                LabeledContent("Notifiche", value: "FAA2")
+                LabeledContent("EQ service", value: "FAA0")
+                LabeledContent("Write", value: "FAA1")
+                LabeledContent("Notifications", value: "FAA2")
             }
-            Section("Lettura stato") {
+            Section("Read status") {
                 Text("AA 76 01 00 21")
                     .font(.system(.body, design: .monospaced))
                     .textSelection(.enabled)
-                Button("Richiedi preset corrente") { ble.requestStatus() }
+                Button("Read active preset") { ble.requestStatus() }
                     .disabled(!ble.isReady)
             }
-            Section("Batteria (protocollo 0x33)") {
+            Section("Battery (protocol 0x33)") {
                 Text("AA 33 01 00 DE")
                     .font(.system(.body, design: .monospaced))
                     .textSelection(.enabled)
-                Button("Leggi batteria") { ble.requestBattery() }
+                Button("Read battery") { ble.requestBattery() }
                     .disabled(!ble.isReady)
-                LabeledContent("Ultima risposta", value: ble.batteryLevel.map { "\($0)%" } ?? "Non disponibile")
-                Text("La risposta A5 33 01 XX checksum è interpretata come percentuale se XX è fra 0 e 100. Da confrontare con il widget Batterie di iOS.")
+                LabeledContent("Latest response", value: ble.batteryLevel.map { "\($0)%" } ?? "Not available")
+                Text("A5 33 01 XX checksum is interpreted as a battery percentage when XX is between 0 and 100. Requires further validation.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
             }
-            Section("Comandi EQ verificati") {
+            Section("Verified B21S EQ commands") {
                 ForEach(0..<6, id: \.self) { index in
                     VStack(alignment: .leading, spacing: 4) {
                         HStack {
@@ -346,7 +374,7 @@ private struct B21SProtocolView: View {
                         Text(B21SUI.command(index))
                             .font(.system(.caption, design: .monospaced))
                             .textSelection(.enabled)
-                        Text("Originale: \(B21SUI.original[index])")
+                        Text("Original label: \(B21SUI.original[index])")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
@@ -359,7 +387,7 @@ private struct B21SProtocolView: View {
                     .foregroundStyle(.secondary)
             }
         }
-        .navigationTitle("Protocollo BLE")
+        .navigationTitle("BLE protocol")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
@@ -371,20 +399,20 @@ private struct B21SDiagnosticsView: View {
         List {
             Section {
                 HStack {
-                    Button("Copia log") {
+                    Button("Copy logs") {
                         UIPasteboard.general.string = ble.events.reversed().joined(separator: "\n")
                     }
                     .disabled(ble.events.isEmpty)
                     Spacer()
-                    Button("Pulisci log", role: .destructive) { ble.clearEventLog() }
+                    Button("Clear logs", role: .destructive) { ble.clearEventLog() }
                         .disabled(ble.events.isEmpty)
                 }
             } footer: {
-                Text("I log rimangono sul telefono. Controlla eventuali identificativi prima di condividerli.")
+                Text("Logs remain on this device. Remove any identifiers before sharing.")
             }
-            Section("Eventi BLE recenti") {
+            Section("Recent BLE events") {
                 if ble.events.isEmpty {
-                    Text("Nessun evento registrato")
+                    Text("No events recorded")
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(Array(ble.events.enumerated()), id: \.offset) { _, entry in
@@ -395,7 +423,7 @@ private struct B21SDiagnosticsView: View {
                 }
             }
         }
-        .navigationTitle("Diagnostica")
+        .navigationTitle("Diagnostics")
         .navigationBarTitleDisplayMode(.inline)
     }
 }
