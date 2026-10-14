@@ -132,6 +132,10 @@ final class DeviceTelemetry: ObservableObject {
         }
     }
 
+    func clearSupportResult() {
+        supportResult = nil
+    }
+
     /// Invoked ONLY after the user confirms exactly what will be sent.
     /// It works without a GitHub account or global automatic-sharing consent.
     func submitSupportRequest(model: String, bleStatus: String,
