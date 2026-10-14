@@ -126,6 +126,18 @@ final class CommunityHeadsetManager: NSObject, ObservableObject {
         status = "Assigning EQ preset; waiting for acknowledgement before activation."
     }
 
+    /// The same consented v2 contribution channel used by the B21S manager.
+    /// Only after an exact model profile and expected GATT channels are present.
+    private func reportIfConsented() {
+        guard ready, let peripheral = selected, let model = selectedModel else { return }
+        DeviceTelemetry.shared.submitIfNeeded(
+            model: model.rawValue,
+            services: peripheral.services?.map { $0.uuid.uuidString } ?? [],
+            characteristics: peripheral.services?.flatMap { $0.characteristics ?? [] }
+                .map { $0.uuid.uuidString } ?? []
+        )
+    }
+
     private func sendTOZO(_ bytes: [UInt8]) -> Bool {
         guard let peripheral = selected, let char = writeCharacteristic,
               char.uuid == CBUUID(string: "B611") else { return false }
@@ -158,6 +170,7 @@ final class CommunityHeadsetManager: NSObject, ObservableObject {
             }
             ready = true
             status = "Marshall protocol located. Controls are experimental on iOS."
+            reportIfConsented()
         }
     }
 
@@ -271,6 +284,7 @@ extension CommunityHeadsetManager: CBPeripheralDelegate {
         if error == nil && characteristic.isNotifying {
             ready = true
             status = "TOZO T10 BLE protocol found. Experimental commands are available."
+            reportIfConsented()
         } else {
             status = "Could not enable TOZO notifications; no controls enabled."
         }
