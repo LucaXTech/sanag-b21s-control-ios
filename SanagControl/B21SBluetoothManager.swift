@@ -325,6 +325,20 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         log(bytes[1] == 0x39 ? "EQ confermato: \(bytes[3])" : "Stato EQ: \(bytes[3])")
     }
 
+    /// Sends only allowlisted protocol metadata; never raw BLE packets or IDs.
+    func reportTechnicalInfoIfNeeded() {
+        guard isReady, let peripheral = connectedPeripheral else { return }
+        let services = peripheral.services?.map { $0.uuid.uuidString } ?? []
+        let characteristics = peripheral.services?
+            .flatMap { $0.characteristics ?? [] }
+            .map { $0.uuid.uuidString } ?? []
+        DeviceTelemetry.shared.submitIfNeeded(
+            model: "sanag B21S",
+            services: services,
+            characteristics: characteristics
+        )
+    }
+
     private func becameReady() {
         guard !isReady, let peripheral = connectedPeripheral else { return }
         isReady = true
@@ -338,6 +352,7 @@ final class B21SBluetoothManager: NSObject, ObservableObject {
         log("Servizio FAA0 e caratteristiche FAA1/FAA2 disponibili")
         requestStatus()
         requestBattery()
+        reportTechnicalInfoIfNeeded()
         if let preset = shortcutPending?.preset {
             // L'automazione ha precedenza e invia il comando una sola volta.
             sendPreset(preset, restored: true)
@@ -421,10 +436,9 @@ extension B21SBluetoothManager: CBCentralManagerDelegate {
                         rssi RSSI: NSNumber) {
         let name = (advertisementData[CBAdvertisementDataLocalNameKey] as? String)
             ?? peripheral.name ?? "Dispositivo senza nome"
-        let advertised = (advertisementData[CBAdvertisementDataServiceUUIDsKey] as? [CBUUID]) ?? []
-        let likelyB21S = name.localizedCaseInsensitiveContains("B21S") ||
-            (name.localizedCaseInsensitiveContains("sanag") && advertised.contains(advertisedUUID)) ||
-            advertised.contains(advertisedUUID)
+        // Do not target unrelated peripherals based only on a shared BLE UUID.
+        // Other headphones require a separately verified protocol adapter.
+        let likelyB21S = name.localizedCaseInsensitiveContains("B21S")
         guard likelyB21S else { return }
         peripherals[peripheral.identifier] = peripheral
         if let idx = foundDevices.firstIndex(where: { $0.id == peripheral.identifier }) {

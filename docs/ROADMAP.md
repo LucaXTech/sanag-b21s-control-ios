@@ -10,6 +10,14 @@
 - [x] Developer protocol reference and local logs.
 - [x] Experimental B21S battery read (`0x33`).
 
+## Draft 0.4.5: optional compatibility reports
+
+- [x] One-time consent prompt and persistent opt-out switch, default off.
+- [x] Minimal allowlisted BLE metadata, successful-send throttling and no reports without HTTPS configuration.
+- [x] Client-side report data minimization and consent handling.
+- [ ] Deploy a separately maintained receiver, publish the host-specific privacy notice, and then configure DeviceReportURL.
+- [ ] Run macOS CI plus on-device consent/disable/reconnect tests before release.
+
 ## Before first stable release
 
 - [ ] Compile on macOS Xcode 26+; CI run green.
