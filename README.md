@@ -14,7 +14,7 @@ Sanag Control uses **CoreBluetooth** to read and select the six firmware EQ pres
 **Author:** Luca Serioli ([@LucaXTech](https://github.com/LucaXTech))  
 **Current released version:** 0.4.4 — pre-release / hardware validation in progress
 
-**In development:** 0.4.5, optional opt-in compatibility reporting (requires a configured HTTPS receiver before release).
+**In development:** 0.5.0 multi-brand beta, English-first interface, direct anonymous headphone-model requests and opt-in technical reports to one Cloudflare receiver. The B21S remains the only model verified on this iOS app.
 
 ## Features
 
@@ -25,6 +25,14 @@ Sanag Control uses **CoreBluetooth** to read and select the six firmware EQ pres
 - Experimental battery level reading from the B21S BLE protocol, independently of iOS battery widgets.
 - Minimal SwiftUI home, Settings, read-only BLE protocol reference and local diagnostic events.
 - Background CoreBluetooth mode and state restoration; **iOS decides if and when background execution is granted**.
+
+## Contribute without GitHub
+
+In the experimental **Other headphones → Find my model · Request support** screen, enter a brand and model. When iOS can see matching Bluetooth LE advertisements, you can inspect GATT service/characteristic UUIDs **without reading characteristic values or sending unknown commands**. Tap **Send support request** to review the data and submit directly through the same HTTPS receiver used by opt-in compatibility observations. You do **not** need a GitHub account, and you can request support even when no BLE interface is visible.
+
+Contributions are aggregate technical requests, **not evidence that an untested model is compatible**. Unknown devices never receive Sanag EQ commands. An explicit confirmation is required for each manual request; automatic observations use an independent opt-in switch. No device identifiers, audio, raw packets or local logs are sent. See [Privacy](PRIVACY.md).
+
+The experimental TOZO T10 and Marshall Motif II ANC adapters are based on published external protocol research and are **unverified on physical hardware with this app**.
 
 ## Requirements
 
@@ -86,7 +94,7 @@ The names are **labels**, not newly engineered EQ curves; filtering is performed
 
 ## Help test other headphones
 
-Only **Sanag B21S** is hardware-verified so far. If you own another model, please check the [compatibility matrix](docs/COMPATIBILITY.md) and open a [Device compatibility report](https://github.com/LucaXTech/sanag-b21s-control-ios/issues/new/choose) with **redacted, read-only** GATT observations. If using ChatGPT or another AI assistant, show it [AGENTS.md](AGENTS.md), then review findings yourself before voluntarily contributing. Do not try unknown writes on unsupported devices.
+Only **Sanag B21S** is hardware-verified on iOS so far. Use **Find my model · Request support** in the 0.5.0 beta to submit a request without GitHub. Developers may also use the [GitHub compatibility issue form](https://github.com/LucaXTech/sanag-b21s-control-ios/issues/new/choose) and [AGENTS.md](AGENTS.md). Never send unknown commands to unsupported hardware.
 
 ## Independence and attribution
 
